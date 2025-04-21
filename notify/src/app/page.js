@@ -66,7 +66,7 @@ export default function Home() {
       //  Listen for 'notification' events
       socket.on("new-post:" + userId, (notification) => {
         setUnreadNotifications((prevNotifications) => [
-          unreadNotification,
+          notification,
           ...prevNotifications,
         ]);
       });
@@ -175,7 +175,7 @@ export default function Home() {
                     )}
                     {notifications.map((notif) => (
                       <li
-                        key={notif.title + notif.from}
+                        key={JSON.stringify(notif)}
                         className="p-4 hover:bg-gray-100 cursor-pointer"
                       >
                         <p className="font-semibold">{notif.title}</p>
