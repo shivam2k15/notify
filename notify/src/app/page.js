@@ -75,7 +75,7 @@ export default function Home() {
     if (socket) {
       socket.on("connect", () => {
         console.log("Connected to socket server");
-        socket.emit("join", userId); // join room
+        socket.emit("join", "join"+userId); // join room
       });
       console.log("socketnew-post:" + userId, userId, socket);
       //  Listen for 'notification' events
