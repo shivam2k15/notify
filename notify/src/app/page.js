@@ -14,6 +14,8 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+
+  const [unreadNotifications, setUnreadNotifications] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [posts, setPosts] = useState([]);
   const [followers, setFollowers] = useState([]);
@@ -48,20 +50,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    console.log("socket st", userId, socket);
-    //  Important:  Only connect if we have the userId
     if (userId) {
-      //  Initialize Socket.IO connection *once* and store it.
       const newSocket = io(process.env.NEXT_PUBLIC_API_BASE_URL);
-
-      console.log(
-        "socket in",
-        userId,
-        newSocket,
-        process.env.NEXT_PUBLIC_API_BASE_URL
-      );
       setSocket(newSocket);
-
       //  Clean up the socket connection when the component unmounts
       return () => {
         newSocket.disconnect();
@@ -71,21 +62,16 @@ export default function Home() {
   }, [userId]); //  Dependency on userId.  Reconnect if it changes.
 
   useEffect(() => {
-    console.log("socket1", userId, socket);
     if (socket) {
-      
-      console.log("socketnew-post:" + userId, userId, socket);
       //  Listen for 'notification' events
       socket.on("new-post:" + userId, (notification) => {
-        console.log("Received notification:", notification);
-        setNotifications((prevNotifications) => [
-          notification,
+        setUnreadNotifications((prevNotifications) => [
+          unreadNotification,
           ...prevNotifications,
         ]);
       });
       //  Remove the event listener when the socket disconnects or the component unmounts
       return () => {
-        console.log("socket end", userId, socket);
         socket.off(userId);
       };
     }
@@ -110,9 +96,12 @@ export default function Home() {
   };
 
   const handleFetchNotifications = () => {
-    setNotifications([]);
-    console.log("Fetching notifications...");
+    setNotifications((prevNotifications) => [
+      unreadNotifications,
+      ...prevNotifications,
+    ]);
     setOpen(!open);
+    setUnreadNotifications([]);
   };
 
   const handleLogin = async () => {
@@ -166,9 +155,9 @@ export default function Home() {
                 className="relative text-gray-400 focus:outline-none cursor-pointer"
               >
                 <FaBell size={24} />
-                {notifications.length > 0 && (
+                {unreadNotifications.length > 0 && (
                   <span className="absolute top-0 right-0 text-xs bg-red-500 text-white rounded-full px-1">
-                    {notifications.length}
+                    {unreadNotifications.length}
                   </span>
                 )}
               </button>
