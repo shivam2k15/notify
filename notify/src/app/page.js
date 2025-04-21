@@ -63,17 +63,13 @@ export default function Home() {
     }
     if (title.trim() && description.trim()) {
       const newPost = {
-        userId: user.id,
-        title,
-        description,
-        created_at: new Date().toISOString(),
-      };
-      setPosts((prev) => [newPost, ...prev]);
-      await createPosts({
         userId,
         title: title.trim(),
         description: description.trim(),
-      });
+        created_at: new Date().toISOString(),
+      };
+      setPosts((prev) => [newPost, ...prev]);
+      await createPosts(newPost);
       setTitle("");
       setDescription("");
     }
@@ -196,7 +192,9 @@ export default function Home() {
 
           {/* Notification Feed */}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold mb-2 text-gray-400">Live Feed</h2>
+            <h2 className="text-lg font-semibold mb-2 text-gray-400">
+              Live Feed
+            </h2>
             <ul className="space-y-2">
               {posts.map((n) => (
                 <li
