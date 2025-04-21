@@ -9,6 +9,7 @@ import {
   getPosts,
   getUserFollowers,
 } from "../../services/postService";
+import { on } from "nodemailer/lib/xoauth2";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -73,10 +74,6 @@ export default function Home() {
   useEffect(() => {
     console.log("socket1", userId, socket);
     if (socket) {
-      socket.on("connect", () => {
-        console.log("Connected to socket server");
-        socket.emit("join", "join"+userId); // join room
-      });
       console.log("socketnew-post:" + userId, userId, socket);
       //  Listen for 'notification' events
       socket.on("new-post:" + userId, (notification) => {
