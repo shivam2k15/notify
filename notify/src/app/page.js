@@ -76,7 +76,7 @@ export default function Home() {
     console.log("socket1", userId, socket);
     if (socket) {
       //  Listen for 'notification' events
-      socket.on(userId, (notification) => {
+      socket.on("new-post:" + userId, (notification) => {
         console.log("Received notification:", notification);
         setNotifications((prevNotifications) => [
           notification,
