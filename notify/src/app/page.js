@@ -51,7 +51,9 @@ export default function Home() {
     //  Important:  Only connect if we have the userId
     if (userId) {
       //  Initialize Socket.IO connection *once* and store it.
-      const newSocket = io("http://3.110.155.63:3000");
+      const newSocket = io("http://3.110.155.63:3000", {
+        transports: ["websocket"], // skip polling for better perf
+      });
       setSocket(newSocket);
 
       //  Clean up the socket connection when the component unmounts
