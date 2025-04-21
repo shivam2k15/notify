@@ -52,9 +52,7 @@ export default function Home() {
     //  Important:  Only connect if we have the userId
     if (userId) {
       //  Initialize Socket.IO connection *once* and store it.
-      const newSocket = io(process.env.NEXT_PUBLIC_API_BASE_URL, {
-        transports: ["websocket"], // skip polling for better perf
-      });
+      const newSocket = io(process.env.NEXT_PUBLIC_API_BASE_URL);
 
       console.log(
         "socket in",
@@ -75,6 +73,11 @@ export default function Home() {
   useEffect(() => {
     console.log("socket1", userId, socket);
     if (socket) {
+      socket.on("connect", () => {
+        console.log("Connected to socket server");
+        socket.emit("join", userId); // join room
+      });
+      console.log("socketnew-post:" + userId, userId, socket);
       //  Listen for 'notification' events
       socket.on("new-post:" + userId, (notification) => {
         console.log("Received notification:", notification);
