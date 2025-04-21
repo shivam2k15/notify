@@ -19,6 +19,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
