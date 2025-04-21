@@ -51,7 +51,7 @@ export default function Home() {
     //  Important:  Only connect if we have the userId
     if (userId) {
       //  Initialize Socket.IO connection *once* and store it.
-      const newSocket = io("https://3.110.155.63:3000", {
+      const newSocket = io(process.env.NEXT_PUBLIC_API_BASE_URL, {
         transports: ["websocket"], // skip polling for better perf
       });
       setSocket(newSocket);
