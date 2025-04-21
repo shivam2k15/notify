@@ -9,7 +9,6 @@ import {
   getPosts,
   getUserFollowers,
 } from "../../services/postService";
-// const socket = io("http://localhost:3001");
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -18,9 +17,10 @@ export default function Home() {
   const [notifications, setNotifications] = useState([]);
   const [posts, setPosts] = useState([]);
   const [followers, setFollowers] = useState([]);
-  const [user, setUser] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [open, setOpen] = useState(false);
   const [modal, setModal] = useState(false);
+  const [socket, setSocket] = useState(null);
   const bellRef = useRef();
 
   useEffect(() => {
@@ -38,26 +38,48 @@ export default function Home() {
     (async () => {
       let allposts = await getPosts(1);
       setPosts(allposts);
-      let userId = localStorage.getItem("userId");
-      if (userId) {
-        let allfollowers = await getUserFollowers(userId);
+      let userid = localStorage.getItem("userId");
+      setUserId(userid);
+      if (userid) {
+        let allfollowers = await getUserFollowers(userid);
         setFollowers(allfollowers);
       }
     })();
-
-    // Real-time notification
-    // socket.on("new-notification", (data) => {
-    //   setNotifications((prev) => [data, ...prev]);
-    // });
-
-    // return () => {
-    //   socket.off("new-notification");
-    // };
   }, []);
 
+  useEffect(() => {
+    //  Important:  Only connect if we have the userId
+    if (userId) {
+      //  Initialize Socket.IO connection *once* and store it.
+      const newSocket = io("http://3.110.155.63:3000");
+      setSocket(newSocket);
+
+      //  Clean up the socket connection when the component unmounts
+      return () => {
+        newSocket.disconnect();
+        setSocket(null);
+      };
+    }
+  }, [userId]); //  Dependency on userId.  Reconnect if it changes.
+
+  useEffect(() => {
+    if (socket) {
+      //  Listen for 'notification' events
+      socket.on(userId, (notification) => {
+        console.log("Received notification:", notification);
+        setNotifications((prevNotifications) => [
+          notification,
+          ...prevNotifications,
+        ]);
+      });
+      //  Remove the event listener when the socket disconnects or the component unmounts
+      return () => {
+        socket.off(userId);
+      };
+    }
+  }, [socket, userId]);
+
   const handlePost = async () => {
-    let userId = localStorage.getItem("userId");
-    console.log(userId, "userId");
     if (!userId) {
       setModal(true);
     }
@@ -89,7 +111,7 @@ export default function Home() {
       if (user?.id) {
         let allfollowers = await getUserFollowers(user?.id);
         setFollowers(allfollowers);
-        setUser(user);
+        setUserId(user.id);
         localStorage.setItem("userId", user?.id);
         setModal(false);
       }
