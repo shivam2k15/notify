@@ -3,11 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { FaBell } from "react-icons/fa";
-import { createUsers } from "../../services/postService";
-const socket = io("http://localhost:3001");
+import {
+  createPosts,
+  createUsers,
+  getPosts,
+  getUserFollowers,
+} from "../../services/postService";
+// const socket = io("http://localhost:3001");
 
 export default function Home() {
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -30,19 +34,25 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    setFollowers([
-      { id: "1", name: "Alice", avatar: "/avatar1.png" },
-      { id: "2", name: "Bob", avatar: "/avatar1.png" },
-    ]);
+    //iifi for async
+    (async () => {
+      let allposts = await getPosts(1);
+      setPosts(allposts);
+      let userId = localStorage.getItem("userId");
+      if (userId) {
+        let allfollowers = await getUserFollowers(userId);
+        setFollowers(allfollowers);
+      }
+    })();
 
     // Real-time notification
-    socket.on("new-notification", (data) => {
-      setNotifications((prev) => [data, ...prev]);
-    });
+    // socket.on("new-notification", (data) => {
+    //   setNotifications((prev) => [data, ...prev]);
+    // });
 
-    return () => {
-      socket.off("new-notification");
-    };
+    // return () => {
+    //   socket.off("new-notification");
+    // };
   }, []);
 
   const handlePost = async () => {
@@ -59,24 +69,30 @@ export default function Home() {
         created_at: new Date().toISOString(),
       };
       setPosts((prev) => [newPost, ...prev]);
+      await createPosts({
+        userId,
+        title: title.trim(),
+        description: description.trim(),
+      });
       setTitle("");
       setDescription("");
     }
   };
 
   const handleFetchNotifications = () => {
-    setNotifications([]);
+    setNotifications((prev) => [notifications, ...prev]);
     console.log("Fetching notifications...");
     setOpen(!open);
   };
 
   const handleLogin = async () => {
-    if (username.trim() && email.trim()) {
+    if (email.trim()) {
       let user = await createUsers({
-        username: username.trim(),
         email: email.trim(),
       });
       if (user?.id) {
+        let allfollowers = await getUserFollowers(user?.id);
+        setFollowers(allfollowers);
         setUser(user);
         localStorage.setItem("userId", user?.id);
         setModal(false);
@@ -94,9 +110,12 @@ export default function Home() {
           </h2>
           <ul className="space-y-3">
             {followers.map((f) => (
-              <li key={f.id} className="flex items-center space-x-2">
+              <li
+                key={f.id + f.name + f.email}
+                className="flex items-center space-x-2"
+              >
                 <img
-                  src={f.avatar}
+                  src={f.avatar || "/avatar1.png"}
                   alt={f.name}
                   className="w-8 h-8 rounded-full"
                 />
@@ -199,16 +218,9 @@ export default function Home() {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96">
             <h2 className="text-xl font-semibold mb-4 text-gray-600">
-              Login Required
+              Subscribe
             </h2>
             <p className="mb-4 text-gray-600">
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="username"
-                className="w-full border border-gray-300 p-2 rounded"
-              />
               <input
                 type="text"
                 value={email}
@@ -219,9 +231,9 @@ export default function Home() {
             </p>
             <button
               onClick={handleLogin}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer"
             >
-              Login
+              Subscribe
             </button>
           </div>
         </div>
