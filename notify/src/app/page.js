@@ -80,7 +80,7 @@ export default function Home() {
   };
 
   const handleFetchNotifications = () => {
-    setNotifications((prev) => [notifications, ...prev]);
+    setNotifications([]);
     console.log("Fetching notifications...");
     setOpen(!open);
   };
@@ -105,7 +105,7 @@ export default function Home() {
       <div className="flex h-screen">
         {/* Sidebar */}
         <aside className="w-64 bg-gray-500 p-4 border-r border-gray-600">
-          <h2 className="text-xl font-semibold mb-4">
+          <h2 className="text-xl font-semibold mb-4 text-gray-200">
             Followers ({followers.length})
           </h2>
           <ul className="space-y-3">
@@ -129,7 +129,7 @@ export default function Home() {
         <main className="flex-1 p-6">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Create Post</h1>
+            <h1 className="text-2xl font-bold text-gray-200">Notify Works</h1>
             <div className="relative" ref={bellRef}>
               <button
                 onClick={() => handleFetchNotifications()}
@@ -196,12 +196,12 @@ export default function Home() {
 
           {/* Notification Feed */}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold mb-2">Live Feed</h2>
+            <h2 className="text-lg font-semibold mb-2 text-gray-400">Live Feed</h2>
             <ul className="space-y-2">
               {posts.map((n) => (
                 <li
                   key={n.id + n.created_at}
-                  className="border p-3 rounded shadow-sm"
+                  className="border p-3 rounded shadow-sm text-gray-400"
                 >
                   <strong>{n.title}</strong>
                   <p>{n.description}</p>
