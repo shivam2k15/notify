@@ -175,12 +175,12 @@ export default function Home() {
                     )}
                     {notifications.map((notif) => (
                       <li
-                        key={notif.id}
+                        key={notif.title + notif.from}
                         className="p-4 hover:bg-gray-100 cursor-pointer"
                       >
                         <p className="font-semibold">{notif.title}</p>
                         <span className="text-xs text-gray-400">
-                          {new Date(notif.createdAt).toLocaleString()}
+                          {new Date().toLocaleString()}
                         </span>
                       </li>
                     ))}
