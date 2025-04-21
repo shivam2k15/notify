@@ -7,7 +7,7 @@ export const getNotifications = async () => {
 };
 
 export const getPosts = async (page) => {
-  const res = await fetch(process.env.NEXT_PUBLIC_API_BASE_URL + "/post/"+page);
+  const res = await fetch("http://3.110.155.63:3000/post/" + page);
   if (!res.ok) throw new Error("Failed to fetch posts");
   return res.json();
 };
