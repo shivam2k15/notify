@@ -48,12 +48,20 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    console.log("socket st", userId, socket);
     //  Important:  Only connect if we have the userId
     if (userId) {
       //  Initialize Socket.IO connection *once* and store it.
       const newSocket = io(process.env.NEXT_PUBLIC_API_BASE_URL, {
         transports: ["websocket"], // skip polling for better perf
       });
+
+      console.log(
+        "socket in",
+        userId,
+        newSocket,
+        process.env.NEXT_PUBLIC_API_BASE_URL
+      );
       setSocket(newSocket);
 
       //  Clean up the socket connection when the component unmounts
@@ -65,6 +73,7 @@ export default function Home() {
   }, [userId]); //  Dependency on userId.  Reconnect if it changes.
 
   useEffect(() => {
+    console.log("socket1", userId, socket);
     if (socket) {
       //  Listen for 'notification' events
       socket.on(userId, (notification) => {
@@ -76,6 +85,7 @@ export default function Home() {
       });
       //  Remove the event listener when the socket disconnects or the component unmounts
       return () => {
+        console.log("socket end", userId, socket);
         socket.off(userId);
       };
     }
