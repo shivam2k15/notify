@@ -1,4 +1,15 @@
 let baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+export const followUser = async (payload) => {
+  const res = await fetch(baseUrl + "/user/follow", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to create follower");
+  return res.json();
+};
+
 export const getNotifications = async () => {
   const res = await fetch(baseUrl + "/notifications");
   if (!res.ok) throw new Error("Failed to fetch notifications");

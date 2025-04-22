@@ -8,12 +8,14 @@ import {
   createUsers,
   getPosts,
   getUserFollowers,
+  followUser,
 } from "../../services/postService";
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [follow, setFollow] = useState([]);
 
   const [unreadNotifications, setUnreadNotifications] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -43,8 +45,11 @@ export default function Home() {
       let userid = localStorage.getItem("userId");
       setUserId(userid);
       if (userid) {
-        let allfollowers = await getUserFollowers(userid);
+        const { allfollowers, allNonfollowers } = await getUserFollowers(
+          userid
+        );
         setFollowers(allfollowers);
+        setFollow(allNonfollowers);
       }
     })();
   }, []);
@@ -104,6 +109,20 @@ export default function Home() {
     setUnreadNotifications([]);
   };
 
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+
+  const handleFollow = async (user) => {
+    setFollow((prev) => prev.filter((follower) => follower.id !== user.id));
+    setFollowers((prev) => [user, ...prev]);
+    await followUser({ userId, followerId: user.id });
+  };
+
   const handleLogin = async () => {
     if (email.trim()) {
       let user = await createUsers({
@@ -124,24 +143,53 @@ export default function Home() {
       <div className="flex h-screen">
         {/* Sidebar */}
         <aside className="w-64 bg-gray-500 p-4 border-r border-gray-600">
-          <h2 className="text-xl font-semibold mb-4 text-gray-200">
-            Followers ({followers.length})
-          </h2>
-          <ul className="space-y-3">
-            {followers.map((f) => (
-              <li
-                key={f.id + f.name + f.email}
-                className="flex items-center space-x-2"
-              >
-                <img
-                  src={f.avatar || "/avatar1.png"}
-                  alt={f.name}
-                  className="w-8 h-8 rounded-full"
-                />
-                <span>{f.name}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="pb-2">
+            <h2 className="text-xl font-semibold mb-4 text-gray-200">
+              Followers ({followers.length})
+            </h2>
+            <ul className="space-y-3">
+              {followers.map((f) => (
+                <li
+                  key={f.id + f.name + f.email}
+                  className="flex items-center space-x-2"
+                >
+                  <img
+                    src={f.avatar || "/avatar1.png"}
+                    alt={f.name}
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span>{f.name}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <hr />
+          <div className="pt-2">
+            <h2 className="text-xl font-semibold mb-4 text-gray-200">
+              People you may know
+            </h2>
+            <ul className="space-y-3">
+              {follow.map((f) => (
+                <li
+                  key={f.id + f.name + f.email}
+                  className="flex items-center space-x-2"
+                >
+                  <img
+                    src={f.avatar || "/avatar1.png"}
+                    alt={f.name}
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span>{f.name}</span>
+                  <button
+                    onClick={() => handleFollow(f)}
+                    className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all"
+                  >
+                    Follow
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         </aside>
 
         {/* Main Content */}
@@ -236,8 +284,8 @@ export default function Home() {
         </main>
       </div>
       {modal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-96">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/80 z-50">
+          <div className="bg-gray-200 p-6 rounded shadow-lg w-96">
             <h2 className="text-xl font-semibold mb-4 text-gray-600">
               Subscribe
             </h2>
@@ -246,13 +294,21 @@ export default function Home() {
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="email"
+                placeholder="Please enter your email"
                 className="w-full border border-gray-300 p-2 rounded"
               />
             </p>
+            {!validateEmail(email) && email.length > 0 && (
+              <p className="text-red-500 text-sm">Enter a valid email.</p>
+            )}
             <button
+              disabled={!validateEmail(email)}
               onClick={handleLogin}
-              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 cursor-pointer"
+              className={`text-white px-4 py-2 rounded cursor-pointer ${
+                !validateEmail(email)
+                  ? "bg-gray-400"
+                  : "bg-gray-600 hover:bg-gray-700"
+              }`}
             >
               Subscribe
             </button>
