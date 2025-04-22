@@ -123,7 +123,7 @@ export default function Home() {
       userId: user.id,
       followerId: userId,
       name: user.name || user.email.split("@")[0],
-      email,
+      email:user.email,
     });
   };
 
