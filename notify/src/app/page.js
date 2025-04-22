@@ -161,7 +161,7 @@ export default function Home() {
                     alt={f.name}
                     className="w-8 h-8 rounded-full"
                   />
-                  <span>{f.name}</span>
+                  <span>{f.name || f.email.split("@")[0]}</span>
                 </li>
               ))}
             </ul>
@@ -182,7 +182,7 @@ export default function Home() {
                     alt={f.name}
                     className="w-8 h-8 rounded-full"
                   />
-                  <span>{f.name}</span>
+                  <span>{f.name || f.email.split("@")[0]}</span>
                   <button
                     onClick={() => handleFollow(f)}
                     className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:scale-95 transition-all"
