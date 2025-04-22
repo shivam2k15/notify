@@ -129,8 +129,11 @@ export default function Home() {
         email: email.trim(),
       });
       if (user?.id) {
-        let allfollowers = await getUserFollowers(user?.id);
+        const { allfollowers, allNonfollowers } = await getUserFollowers(
+          user?.id
+        );
         setFollowers(allfollowers);
+        setFollow(allNonfollowers);
         setUserId(user.id);
         localStorage.setItem("userId", user?.id);
         setModal(false);
