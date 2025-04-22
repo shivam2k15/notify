@@ -120,7 +120,12 @@ export default function Home() {
   const handleFollow = async (user) => {
     setFollow((prev) => prev.filter((follower) => follower.id !== user.id));
     setFollowers((prev) => [user, ...prev]);
-    await followUser({ userId, followerId: user.id });
+    await followUser({
+      userId: user.id,
+      followerId: userId,
+      name: user.name || user.email.split("@")[0],
+      user: email,
+    });
   };
 
   const handleLogin = async () => {
